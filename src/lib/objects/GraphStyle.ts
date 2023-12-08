@@ -1,0 +1,8 @@
+export enum GraphStyle {
+    TREE = 'TREE',
+    TREE_VERTICAL = 'TREE_VERTICAL',
+    RADIAL_TREE = 'RADIAL_TREE',
+    DAG = 'DAG',
+    FORCE_DIRECTED = 'FORCE_DIRECTED',
+    TREE_MAP = 'TREE_MAP',
+}
