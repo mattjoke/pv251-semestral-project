@@ -1,6 +1,7 @@
 <script lang="ts">
-    import {repoStore} from "$lib/stores/stores.js";
+    import {dataLoadingState, repoStore, dataStore} from "$lib/stores/stores.js";
     import {isInvalidLink} from "$lib/utils.js";
+    import {LoadingState} from "$lib/objects/loadingState";
 
     let repoLink = '';
     const updateStore = async () => {
@@ -8,7 +9,16 @@
             return;
         }
         repoStore.set(repoLink);
-        await fetch('/api/fetch');
+        dataLoadingState.set(LoadingState.LOADING);
+        try {
+            const response = await fetch('/api/fetch');
+            const data = await response.json();
+            console.log(data.data);
+            dataStore.set(data.data)
+            dataLoadingState.set(LoadingState.SUCCESS);
+        } catch (e) {
+            dataLoadingState.set(LoadingState.ERROR);
+        }
     }
 </script>
 

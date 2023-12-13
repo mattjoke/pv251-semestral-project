@@ -1,7 +1,7 @@
 <script>
-    import {chartStore} from "$lib/stores/stores.js";
+    import {chartStore, dataStore} from "$lib/stores/stores.js";
     import {GraphStyle} from "$lib/objects/GraphStyle";
-    import {clamp, prettierEnum} from "$lib/utils.js";
+    import {clamp, getDefaultChartOption, prettierEnum} from "$lib/utils.js";
 
     let chartInstance = null;
     chartStore.subscribe((value) => {
@@ -15,6 +15,12 @@
             value: false,
             insideValue: style
         }
+    });
+    viewOption[0].value = true;
+
+    let commitInstance = null;
+    dataStore.subscribe((value) => {
+        commitInstance = value;
     });
 
     const handleClick = (i, insideValue) => {
@@ -36,48 +42,60 @@
             return;
         }
         let newOption = {};
+        let data = [];
         switch (insideValue) {
             case 'TREE':
+                data = commitInstance.data.tree ?? [];
                 newOption = {
-                    series: {
+                    series: getDefaultChartOption({
                         type: 'tree',
                         layout: 'orthogonal',
                         orient: 'vertical',
+                        data: [data],
                         label: {
-                            position: 'top',
+                            position: 'bottom',
                             rotate: 0,
                         }
-                    }
+                    })
                 };
                 break;
             case 'TREE_VERTICAL':
+                data = commitInstance.data.tree ?? [];
                 newOption = {
-                    series: {
+                    series: getDefaultChartOption({
                         type: 'tree',
                         layout: 'orthogonal',
                         orient: 'horizontal',
+                        data: [data],
                         label: {
-                            position: 'top',
+                            position: 'right',
                             rotate: 0,
                         }
-                    }
+                    })
                 };
                 break;
             case 'RADIAL_TREE':
+                data = commitInstance.data.tree ?? [];
                 newOption = {
-                    series: {
+                    series: getDefaultChartOption({
                         type: 'tree',
-                        layout: 'radial'
-                    }
+                        layout: 'radial',
+                        data: [data],
+                        label: {
+                            position: 'bottom',
+                            rotate: 0,
+                        }
+                    })
                 };
                 break;
             case 'TREE_MAP':
                 newOption = {
-                    series: {
+                    series: getDefaultChartOption({
                         type: 'treemap',
+                        data: [data],
                         layoutAlgorithm: 'squarified',
                         visibleMin: 300,
-                    }
+                    })
                 };
                 break;
             case 'DAG':
@@ -183,7 +201,6 @@
                 };
                 break;
         }
-
 
         chartInstance.setOption(newOption, false, true);
     }

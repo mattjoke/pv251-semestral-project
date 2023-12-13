@@ -1,5 +1,6 @@
 <script>
     import {echarts} from '$lib/utils.js';
+    import {dataStore} from "$lib/stores/stores.js";
 
     export let width = 400;
     export let height = 400;
@@ -10,6 +11,17 @@
         {value: 0, name: 'Union Ads'},
         {value: 1, name: 'Video Ads'}
     ];
+
+    dataStore.subscribe((value) => {
+        // TODO: update data from CurrentDataStore
+        const statData = value.stats[0];
+        data = Object.keys(statData).filter(item => item !== 'files' && item !== 'directory' && item !== 'total' && item !== 'noExtension').map((key) => {
+            return {
+                value: statData[key],
+                name: key
+            }
+        });
+    })
 
     const option = {
         tooltip: {

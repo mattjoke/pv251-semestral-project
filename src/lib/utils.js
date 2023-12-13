@@ -58,3 +58,43 @@ export function echartsSave(node, option, saveToStore = false) {
         chartStore.set(chart);
     }
 }
+
+export const getDefaultChartOption = (object) => {
+    const opts = {
+        left: '10%',
+        right: '10%',
+
+        roam: true,
+        label: {
+            position: 'bottom',
+            fontSize: 15
+        },
+        symbolSize: 10,
+        symbol: (value, params) => {
+            if (value != null) {
+                return 'path://M21.89,4H7.83A1.88,1.88,0,0,0,6,5.91V30.09A1.88,1.88,0,0,0,7.83,32H28.17A1.88,1.88,0,0,0,30,30.09V11.92Zm-.3,2.49,6,5.9h-6ZM8,30V6H20v8h8V30Z';
+            }
+            return 'path://M21,8V19a1,1,0,0,1-1,1H4a1,1,0,0,1-1-1V5A1,1,0,0,1,4,4H9.59a1,1,0,0,1,.7.29l2.42,2.42a1,1,0,0,0,.7.29H20A1,1,0,0,1,21,8Z';
+        },
+        initialTreeDepth: 1,
+        itemStyle: {
+            color: 'orange',
+            borderWidth: 1,
+            borderColor: '#333'
+        },
+        emphasis: {
+            focus: 'relative'
+        },
+        tooltip: {
+            trigger: 'item',
+            triggerOn: 'mouseclick'
+
+        },
+        expandAndCollapse: true,
+        animationDuration: 550,
+        animationDurationUpdate: 750
+    };
+
+    return Object.assign(opts, object);
+
+}
