@@ -98,3 +98,13 @@ export const getDefaultChartOption = (object) => {
     return Object.assign(opts, object);
 
 }
+
+
+export const mapValuesToPercentage = (a, b) => {
+    // a + b = 100%, return percentage of a
+    return (a / (a + b)) * 100;
+}
+
+export const numberToStringWithPrecision = (number, precision) => {
+    return number.toFixed(precision);
+}

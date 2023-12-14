@@ -37,7 +37,6 @@
         <h1 class="text-3xl">
             Stats
         </h1>
-        <Plot />
         <FilterTab />
     </div>
 {/if}

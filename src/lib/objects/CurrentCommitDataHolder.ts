@@ -14,6 +14,7 @@ export class CurrentCommitDataHolder {
     // Data structure for the current commit, "TREEMAP" => {}
     private data = {};
     private stats = [];
+    private filters = {};
 
     async init(fs: IFs, cache: {}, commits: ReadCommitResult[]) {
         this.fs = fs;
@@ -127,7 +128,14 @@ export class CurrentCommitDataHolder {
     }
 
     private async convertHierarchyToTreeMap() {
-        this.data['treeMap'] = this.data['tree'];
+        const computedTree = this.data['tree'];
+
+
+        this.data['treeMap'] = {
+            levels: [],
+            name: '/',
+            children: [],
+        }
     }
 
     private async convertHierarchyToForceDirected() {
@@ -139,7 +147,17 @@ export class CurrentCommitDataHolder {
     }
 
     private async generateFilters() {
-
+        // Generate filters for the current commit, using stats
+        const filters = {};
+        for (const stat of this.stats) {
+            for (const key of Object.keys(stat)) {
+                if (key === 'total' || key === 'directory') {
+                    continue;
+                }
+                filters[key] = (filters[key] ?? 0) + stat[key];
+            }
+        }
+        this.filters = filters;
     }
 
     private async generateStats(tree) {

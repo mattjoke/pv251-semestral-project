@@ -1,60 +1,57 @@
 <script>
 
+    import ProgressBar from "$lib/components/ProgresBar.svelte";
+    import {dataStore} from "$lib/stores/stores.js";
+    import {mapValuesToPercentage, numberToStringWithPrecision} from "$lib/utils.js";
+    import {Popover} from "flowbite-svelte";
+
+    let stats;
     let filters = [
         {
-            name: 'Folders',
-            type: 'folder',
-            color: 'yellow',
-            icon: 'folder',
-            checked: true
-        },
-        {
-            name: 'Files',
-            type: 'file',
-            color: 'blue',
-            icon: 'file',
-            checked: true
-        },
-        {
-            name: ".md",
-            type: 'extension',
-            color: 'green',
-            icon: 'file',
-            checked: true
-        },
-        {
-            name: ".php",
-            type: 'extension',
-            color: 'red',
-            icon: 'file',
-            checked: true
-        },
-        {
-            name: ".js",
-            type: 'extension',
-            color: 'yellow',
-            icon: 'file',
-            checked: true
-        },
-    ]
-
+            name: "Placeholder"
+        }
+    ];
+    dataStore.subscribe(value => {
+        stats = value.stats[0];
+        const filterData = value.filters;
+        filters = Object.keys(filterData).map(key => {
+            return {
+                name: key,
+                value: filterData[key],
+                percentage: mapValuesToPercentage(filterData[key], stats.files)
+            }
+        }).sort((a, b) => b.value - a.value)
+    })
 </script>
 
 
-<div class="flex flex-col mt-3 h-1/2 overflow-scroll">
+<div class="flex flex-col mt-3 h-1/2">
     <h1 class="text-2xl text-gray-700">
         Filters
     </h1>
-    {#each filters as filter}
-        <div class="flex flex-row mr-2 justify-between items-center mb-3">
-            <input type="checkbox" class="form-checkbox" checked={filter.checked}/>
-            <span class="ml-2 text-lg">{filter.name}</span>
-            <div class="ml-auto block max-w-sm p-1 border border-gray-200 rounded-lg shadow bg-{filter.color}-300 hover:scale-105 hover:cursor-pointer">
-                <p class="invisible">
-                    ☐..
-                </p>
-            </div>
+    <!--    <Plot/>-->
+    <ProgressBar percentage={mapValuesToPercentage(stats.files, stats.directory)} rightColor="yellow"
+                 rightTitle="Folders" leftTitle="Files" leftColor="green"/>
+    <div class="w-full flex flex-row justify-between -mt-3">
+        <div class="mb-1 text-base font-medium">{stats.files}</div>
+        <div class="mb-1 text-base font-medium">{stats.directory}</div>
+    </div>
 
-        </div>
-    {/each}
+    <div class="hover:text-gray-500">
+        {#each filters as filter,i}
+            <ProgressBar percentage={filter.percentage} leftColor="blue" leftTitle=".{filter.name}" id="pb-{i}"/>
+            <Popover class="w-64 text-sm font-light " triggeredBy="#pb-{i}">
+                <div class="flex flex-col">
+                    <div class="flex flex-row justify-between">
+                        <div class="text-base font-medium">File count '.{filter.name}'</div>
+                        <div class="text-base font-medium">{filter.value}</div>
+                    </div>
+                    <div class="flex flex-row justify-between">
+                        <div class="text-base font-medium">Percentage</div>
+                        <div class="text-base font-medium">{numberToStringWithPrecision(filter.percentage, 2)}%</div>
+                    </div>
+                </div>
+            </Popover>
+        {/each}
+    </div>
 </div>
