@@ -1,5 +1,6 @@
 import {chartStore} from "$lib/stores/stores.js";
 import * as charts from 'echarts';
+import {DIRECTORY, FILE} from "$lib/icons.js";
 
 export const isInvalidLink = (link) => {
     const regex = /https?:\/\/[^\s$.?#].\S*$/gm;
@@ -72,13 +73,13 @@ export const getDefaultChartOption = (object) => {
         symbolSize: 10,
         symbol: (value, params) => {
             if (value != null) {
-                return 'path://M21.89,4H7.83A1.88,1.88,0,0,0,6,5.91V30.09A1.88,1.88,0,0,0,7.83,32H28.17A1.88,1.88,0,0,0,30,30.09V11.92Zm-.3,2.49,6,5.9h-6ZM8,30V6H20v8h8V30Z';
+                return FILE;
             }
-            return 'path://M21,8V19a1,1,0,0,1-1,1H4a1,1,0,0,1-1-1V5A1,1,0,0,1,4,4H9.59a1,1,0,0,1,.7.29l2.42,2.42a1,1,0,0,0,.7.29H20A1,1,0,0,1,21,8Z';
+            return DIRECTORY;
         },
         initialTreeDepth: 1,
         itemStyle: {
-            color: 'orange',
+            color: '#FACA15',
             borderWidth: 1,
             borderColor: '#333'
         },
@@ -105,6 +106,42 @@ export const mapValuesToPercentage = (a, b) => {
     return (a / (a + b)) * 100;
 }
 
+export const randomInt = (min, max) => {
+    return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
 export const numberToStringWithPrecision = (number, precision) => {
     return number.toFixed(precision);
+}
+
+// https://stackoverflow.com/questions/3426404/create-a-hexadecimal-colour-based-on-a-string-with-javascript
+export const stringToColour = (str) => {
+    let hash = 0;
+    str.split('').forEach(char => {
+        hash = char.charCodeAt(0) + ((hash << 5) - hash)
+    })
+    let colour = '#'
+    for (let i = 0; i < 3; i++) {
+        const value = (hash >> (i * 8)) & 0xff
+        colour += value.toString(16).padStart(2, '0')
+    }
+    return colour
+}
+
+// Hash
+export const hashCode = (str) => {
+    let hash = 0;
+    if (str.length === 0) {
+        return hash;
+    }
+    for (let i = 0; i < str.length; i++) {
+        let char = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+    }
+    return hash;
+}
+
+// Convert string to unique number id
+export const stringToId = (str) => {
+    return Math.abs(hashCode(str));
 }

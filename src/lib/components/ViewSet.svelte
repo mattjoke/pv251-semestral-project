@@ -83,6 +83,7 @@
                         data: [data],
                         label: {
                             position: 'bottom',
+                            distance: 10,
                             rotate: 0,
                         }
                     })
@@ -99,105 +100,59 @@
                 };
                 break;
             case 'DAG':
+                data = commitInstance.data.dag ?? [];
                 newOption = {
-                    series: {
-                        type: 'graph',
-                        layout: 'none',
-                        data: [{
-                            name: 'Node 1',
-                            x: 300,
-                            y: 300,
-                            symbolSize: 20,
-                            itemStyle: {
-                                color: '#2c7be5'
+                    series: getDefaultChartOption(
+                        {
+                            type: 'graph',
+                            layout: 'none',
+                            data: data.nodes,
+                            links: data.links,
+                            draggable: true,
+                            emphasis: {
+                                focus: 'adjacency',
+                                edgeLabel: {
+                                    show: true,
+                                    fontSize: 20,
+                                }
+                            },
+                            label: {
+                                show: true,
+                                position: 'bottom',
+                                rotate: 0,
                             }
-                        }, {
-                            name: 'Node 2',
-                            x: 800,
-                            y: 300,
-                            symbolSize: 20,
-                            itemStyle: {
-                                color: '#2c7be5'
-                            }
-                        }, {
-                            name: 'Node 3',
-                            x: 550,
-                            y: 100,
-                            symbolSize: 20,
-                            itemStyle: {
-                                color: '#2c7be5'
-                            }
-                        }, {
-                            name: 'Node 4',
-                            x: 550,
-                            y: 500,
-                            symbolSize: 20,
-                            itemStyle: {
-                                color: '#2c7be5'
-                            }
-                        }],
-                        edges: [{
-                            source: 0,
-                            target: 1
-                        }, {
-                            source: 1,
-                            target: 2
-                        }, {
-                            source: 2,
-                            target: 3
-                        }]
-                    }
+                        }
+                    )
                 };
                 break;
             case 'FORCE_DIRECTED':
+                data = commitInstance.data.dag ?? [];
                 newOption = {
-                    series: {
-                        type: 'graph',
-                        layout: 'force',
-                        data: [{
-                            name: 'Node 1',
-                            x: 300,
-                            y: 300,
-                            symbolSize: 20,
-                            itemStyle: {
-                                color: '#2c7be5'
+                    series: getDefaultChartOption(
+                        {
+                            type: 'graph',
+                            layout: 'force',
+                            data: data.nodes,
+                            links: [...data.links],
+                            emphasis: {
+                                focus: 'adjacency',
+                                edgeLabel: {
+                                    show: true,
+                                    fontSize: 20,
+                                }
+                            },
+                            force: {
+                                repulsion: 200,
+                                edgeLength: 1,
+                            },
+                            draggable: true,
+                            label: {
+                                show: true,
+                                position: 'bottom',
+                                rotate: 0,
                             }
-                        }, {
-                            name: 'Node 2',
-                            x: 800,
-                            y: 300,
-                            symbolSize: 20,
-                            itemStyle: {
-                                color: '#2c7be5'
-                            }
-                        }, {
-                            name: 'Node 3',
-                            x: 550,
-                            y: 100,
-                            symbolSize: 20,
-                            itemStyle: {
-                                color: '#2c7be5'
-                            }
-                        }, {
-                            name: 'Node 4',
-                            x: 550,
-                            y: 500,
-                            symbolSize: 20,
-                            itemStyle: {
-                                color: '#2c7be5'
-                            }
-                        }],
-                        edges: [{
-                            source: 0,
-                            target: 1
-                        }, {
-                            source: 1,
-                            target: 2
-                        }, {
-                            source: 2,
-                            target: 3
-                        }]
-                    }
+                        }
+                    )
                 };
                 break;
         }
@@ -210,7 +165,7 @@
         inputCounter = clamp(inputCounter + value, 1, 999);
 
         if (chartInstance == null) {
-            return;
+            return;sy
         }
         let newOption = {
             series: {

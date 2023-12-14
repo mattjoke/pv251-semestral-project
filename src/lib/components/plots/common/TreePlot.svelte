@@ -6,7 +6,7 @@
     export let width: number;
     export let height: number;
 
-    let data = [];
+    let data = {};
     let commitTimeline = [];
     dataStore.subscribe((value) => {
         if (!value) {
@@ -23,7 +23,6 @@
                 }
             }
         });
-        console.log(commitTimeline)
     });
 
     let inside = {

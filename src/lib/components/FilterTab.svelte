@@ -2,8 +2,7 @@
 
     import ProgressBar from "$lib/components/ProgresBar.svelte";
     import {dataStore} from "$lib/stores/stores.js";
-    import {mapValuesToPercentage, numberToStringWithPrecision} from "$lib/utils.js";
-    import {Popover} from "flowbite-svelte";
+    import {mapValuesToPercentage, stringToColour} from "$lib/utils.js";
 
     let stats;
     let filters = [
@@ -18,10 +17,15 @@
             return {
                 name: key,
                 value: filterData[key],
-                percentage: mapValuesToPercentage(filterData[key], stats.files)
+                percentage: mapValuesToPercentage(filterData[key], stats.files),
+                color: stringToColour(key)
             }
         }).sort((a, b) => b.value - a.value)
     })
+
+    const handleClick = (i) => {
+        console.log("clicked", filters[i])
+    }
 </script>
 
 
@@ -29,29 +33,18 @@
     <h1 class="text-2xl text-gray-700">
         Filters
     </h1>
-    <!--    <Plot/>-->
-    <ProgressBar percentage={mapValuesToPercentage(stats.files, stats.directory)} rightColor="yellow"
-                 rightTitle="Folders" leftTitle="Files" leftColor="green"/>
+    <ProgressBar percentage={mapValuesToPercentage(stats.files, stats.directory)} rightColor="#FACA15"
+                 rightTitle="Folders" leftTitle="Files" leftColor="#0E9F6E" id="file-bar"/>
     <div class="w-full flex flex-row justify-between -mt-3">
         <div class="mb-1 text-base font-medium">{stats.files}</div>
         <div class="mb-1 text-base font-medium">{stats.directory}</div>
     </div>
 
-    <div class="hover:text-gray-500">
+    <div class="w-full border-[0.5px] border-gray-300"></div>
+    <div class="hover:text-gray-500 mt-3">
         {#each filters as filter,i}
-            <ProgressBar percentage={filter.percentage} leftColor="blue" leftTitle=".{filter.name}" id="pb-{i}"/>
-            <Popover class="w-64 text-sm font-light " triggeredBy="#pb-{i}">
-                <div class="flex flex-col">
-                    <div class="flex flex-row justify-between">
-                        <div class="text-base font-medium">File count '.{filter.name}'</div>
-                        <div class="text-base font-medium">{filter.value}</div>
-                    </div>
-                    <div class="flex flex-row justify-between">
-                        <div class="text-base font-medium">Percentage</div>
-                        <div class="text-base font-medium">{numberToStringWithPrecision(filter.percentage, 2)}%</div>
-                    </div>
-                </div>
-            </Popover>
+            <ProgressBar percentage={filter.percentage} leftColor={filter.color} rightTitle="{filter.value}"
+                         leftTitle=".{filter.name}" id="pb-{i}" on:click={() => handleClick(i)}/>
         {/each}
     </div>
 </div>

@@ -1,6 +1,8 @@
 import type {IFs} from "memfs";
 import type {ReadCommitResult} from "isomorphic-git";
 import git from "isomorphic-git";
+import {hashCode, randomInt, stringToColour} from "$lib/utils";
+import {DIRECTORY, FILE} from "$lib/icons";
 
 export class CurrentCommitDataHolder {
     private fs: IFs = {} as IFs;
@@ -96,7 +98,13 @@ export class CurrentCommitDataHolder {
                     children.push(traverse(dir[item], item));
                 } else {
                     const fileName = item.split('/').pop();
-                    children.push({name: fileName, children: []});
+                    const extension = fileName.split('.').pop() || 'No Extension';
+                    children.push({
+                        name: fileName, children: [],
+                        itemStyle: {
+                            color: stringToColour(extension)
+                        }
+                    });
                 }
             }
             return {name, children};
@@ -143,6 +151,51 @@ export class CurrentCommitDataHolder {
     }
 
     private async convertHierarchyToDag() {
+        const dag = {};
+        // dag: { nodes: [{name:'/'}], links: [{source:'/', target:'lib'}] }
+        dag['nodes'] = [];
+        dag['links'] = [];
+
+        // Lookuptable to save relative index of each node
+        const lookupTable = {};
+        const traverse = (dir, name) => {
+            for (const item of Object.keys(dir)) {
+                const extension = item.split('.').pop() || 'No Extension';
+                const isObejct = typeof dir[item] === 'object';
+                dag['nodes'].push({
+                    id: hashCode(item),
+                    x: randomInt(-200, 200),
+                    y: randomInt(-200, 200),
+                    name: item,
+                    itemStyle: {
+                        color: stringToColour(extension),
+                        symbol: (value, params) => {
+                            return isObejct ? DIRECTORY : FILE;
+                        }
+                    }
+                });
+                dag['links'].push(
+                    {
+                        source: hashCode(name),
+                        target: hashCode(item),
+                        label: {
+                            formatter: `${name} -> ${item}`
+                        }
+                    }
+                );
+                if (isObejct) {
+                    traverse(dir[item], item);
+                }
+            }
+        }
+        dag['nodes'].push({name: '/', id: hashCode('/'), x: 0, y: 0});
+        traverse(this.hierarchy, '/');
+        // Map links, source and target are relative to links array
+        for (const link of dag['links']) {
+            link.source = dag['nodes'].findIndex((node) => node.id === link.source);
+            link.target = dag['nodes'].findIndex((node) => node.id === link.target);
+        }
+        this.data['dag'] = dag;
 
     }
 
@@ -151,7 +204,7 @@ export class CurrentCommitDataHolder {
         const filters = {};
         for (const stat of this.stats) {
             for (const key of Object.keys(stat)) {
-                if (key === 'total' || key === 'directory') {
+                if (key === 'total' || key === "files" || key === 'directory') {
                     continue;
                 }
                 filters[key] = (filters[key] ?? 0) + stat[key];
