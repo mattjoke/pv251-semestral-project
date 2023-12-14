@@ -155,6 +155,35 @@
                     )
                 };
                 break;
+            case 'CIRCULAR_GRAPH':
+                data = commitInstance.data.dag ?? [];
+                newOption = {
+                    series: getDefaultChartOption(
+                        {
+                            type: 'graph',
+                            layout: 'circular',
+                            data: data.nodes,
+                            links: [...data.links],
+                            emphasis: {
+                                focus: 'adjacency',
+                                edgeLabel: {
+                                    show: true,
+                                    fontSize: 20,
+                                }
+                            },
+                            draggable: true,
+                            label: {
+                                show: true,
+                                position: 'bottom',
+                                rotate: 0,
+                            },
+                            symbol: (value, params) => {
+                                return 'circle';
+                            },
+                        }
+                    )
+                };
+                break;
         }
 
         chartInstance.setOption(newOption, false, true);

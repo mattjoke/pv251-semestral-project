@@ -39,10 +39,7 @@ export class CurrentCommitDataHolder {
 
         // Convert the hierarchy to Tree-specific data structure
         await this.convertHierarchyToTree();
-        await this.convertHierarchyToTreeVertical();
-        await this.convertHierarchyToRadialTree();
         await this.convertHierarchyToDag();
-        await this.convertHierarchyToForceDirected();
         await this.convertHierarchyToTreeMap();
 
         // Generate filters for the current commit
@@ -127,14 +124,6 @@ export class CurrentCommitDataHolder {
 
     }
 
-    private async convertHierarchyToTreeVertical() {
-        this.data['treeVertical'] = this.data['tree'];
-    }
-
-    private async convertHierarchyToRadialTree() {
-        this.data['radialTree'] = this.data['tree'];
-    }
-
     private async convertHierarchyToTreeMap() {
         const computedTree = this.data['tree'];
 
@@ -144,10 +133,6 @@ export class CurrentCommitDataHolder {
             name: '/',
             children: [],
         }
-    }
-
-    private async convertHierarchyToForceDirected() {
-
     }
 
     private async convertHierarchyToDag() {
@@ -161,17 +146,18 @@ export class CurrentCommitDataHolder {
         const traverse = (dir, name) => {
             for (const item of Object.keys(dir)) {
                 const extension = item.split('.').pop() || 'No Extension';
-                const isObejct = typeof dir[item] === 'object';
+                const isObject = typeof dir[item] === 'object';
                 dag['nodes'].push({
                     id: hashCode(item),
                     x: randomInt(-200, 200),
                     y: randomInt(-200, 200),
                     name: item,
+                    symbol: (value, params) => {
+                        return isObject ? DIRECTORY : FILE;
+                    },
+                    symbolSize: isObject ? Object.keys(dir[item]).length * 5 : 10,
                     itemStyle: {
                         color: stringToColour(extension),
-                        symbol: (value, params) => {
-                            return isObejct ? DIRECTORY : FILE;
-                        }
                     }
                 });
                 dag['links'].push(
@@ -183,12 +169,12 @@ export class CurrentCommitDataHolder {
                         }
                     }
                 );
-                if (isObejct) {
+                if (isObject) {
                     traverse(dir[item], item);
                 }
             }
         }
-        dag['nodes'].push({name: '/', id: hashCode('/'), x: 0, y: 0});
+        dag['nodes'].push({name: '/', id: hashCode('/'), x: 0, y: 0, symbol: DIRECTORY, symbolSize: Object.keys(this.hierarchy).length * 5});
         traverse(this.hierarchy, '/');
         // Map links, source and target are relative to links array
         for (const link of dag['links']) {

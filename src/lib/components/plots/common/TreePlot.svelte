@@ -34,6 +34,7 @@
                 left: '1%',
                 right: '1%',
             },
+            nodeGap: 50,
             tooltip: {
                 trigger: 'item',
                 triggerOn: 'mousemove'

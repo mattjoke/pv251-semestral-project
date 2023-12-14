@@ -4,5 +4,7 @@ export enum GraphStyle {
     RADIAL_TREE = 'RADIAL_TREE',
     DAG = 'DAG',
     FORCE_DIRECTED = 'FORCE_DIRECTED',
+    CIRCULAR_GRAPH = 'CIRCULAR_GRAPH',
     TREE_MAP = 'TREE_MAP',
+
 }
