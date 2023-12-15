@@ -64,7 +64,7 @@ export const getDefaultChartOption = (object) => {
     const opts = {
         left: '10%',
         right: '10%',
-
+        data: [],
         roam: true,
         label: {
             position: 'bottom',
@@ -72,7 +72,8 @@ export const getDefaultChartOption = (object) => {
         },
         symbolSize: 10,
         symbol: (value, params) => {
-            if (value != null) {
+            if (params.data == null || params.data.children == null) return FILE;
+            if (Object.keys(params.data.children).length === 0) {
                 return FILE;
             }
             return DIRECTORY;
@@ -86,9 +87,6 @@ export const getDefaultChartOption = (object) => {
         emphasis: {
             focus: 'relative'
         },
-        // tooltip: {
-        //     trigger: 'item',
-        // },
         expandAndCollapse: true,
         animationDuration: 550,
         animationDurationUpdate: 750

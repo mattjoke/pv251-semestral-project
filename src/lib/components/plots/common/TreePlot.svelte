@@ -46,7 +46,7 @@
                 trigger: 'item',
                 triggerOn: 'mousemove',
                 formatter: (params) => {
-                    return `${params.data.name}: `+ prettyBytes(params.data.value);
+                    return `${params.data.name}: `+ prettyBytes(params.data.value || 0);
                 }
             },
             title: {

@@ -1,9 +1,9 @@
+// @ts-nocheck
 import type {IFs} from "memfs";
 import type {ReadCommitResult} from "isomorphic-git";
 import git from "isomorphic-git";
 import {hashCode, randomInt, stringToColour} from "$lib/utils";
 import {DIRECTORY, FILE} from "$lib/icons";
-import prettyBytes from 'pretty-bytes';
 
 
 export class CurrentCommitDataHolder {
@@ -166,20 +166,18 @@ export class CurrentCommitDataHolder {
         dag['nodes'] = [];
         dag['links'] = [];
 
-        // Lookuptable to save relative index of each node
-        const lookupTable = {};
         const traverse = (dir, name) => {
             for (const item of Object.keys(dir)) {
                 const extension = item.split('.').pop() || 'No Extension';
                 const isObject = typeof dir[item] === 'object';
+                let fileSize = 0;
                 dag['nodes'].push({
                     id: hashCode(item),
                     x: randomInt(-200, 200),
                     y: randomInt(-200, 200),
+                    path: dir[item],
                     name: item,
-                    symbol: (value, params) => {
-                        return isObject ? DIRECTORY : FILE;
-                    },
+                    symbol: isObject ? DIRECTORY : FILE,
                     symbolSize: isObject ? Object.keys(dir[item]).length * 5 : 10,
                     itemStyle: {
                         color: stringToColour(extension),
@@ -213,6 +211,31 @@ export class CurrentCommitDataHolder {
             link.source = dag['nodes'].findIndex((node) => node.id === link.source);
             link.target = dag['nodes'].findIndex((node) => node.id === link.target);
         }
+
+        // Update value of nodes, values are taken from the fileCache, links are taken from the hierarchy
+        for (const node of dag['nodes']) {
+            if (typeof node.path === 'object') {
+                node.value = 0;
+                for (const item of Object.keys(node.path)) {
+                    node.value += this.fileCache[node.path[item]]?.size ?? 0;
+                }
+            } else {
+                node.value = this.fileCache[node.path]?.size ?? 0;
+            }
+        }
+
+        // Calculate the size of the root node, connectlted like in tree
+        const root = dag['nodes'].find((node) => node.name === '/');
+        const traverseRoot = (dir) => {
+            for (const item of Object.keys(dir)) {
+                if (typeof dir[item] === 'object') {
+                    traverseRoot(dir[item]);
+                } else {
+                    root.value += this.fileCache[dir[item]]?.size ?? 0;
+                }
+            }
+        }
+        traverseRoot(this.hierarchy);
         this.data['dag'] = dag;
 
     }
