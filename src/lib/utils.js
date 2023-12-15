@@ -86,11 +86,9 @@ export const getDefaultChartOption = (object) => {
         emphasis: {
             focus: 'relative'
         },
-        tooltip: {
-            trigger: 'item',
-            triggerOn: 'mouseclick'
-
-        },
+        // tooltip: {
+        //     trigger: 'item',
+        // },
         expandAndCollapse: true,
         animationDuration: 550,
         animationDurationUpdate: 750

@@ -13,6 +13,7 @@
 </script>
 
 <svelte:head>
+    <link rel="icon" href="/logo.svg"/>
     <title>LogGit - Git History Crawler</title>
     <meta name="description" content="Git History Crawler"/>
 </svelte:head>

@@ -1,7 +1,6 @@
 <script lang="ts">
     import {dataLoadingState} from "$lib/stores/stores.js";
     import {LoadingState} from "$lib/objects/loadingState";
-    import Plot from "$lib/components/plots/Plot.svelte";
     import FilterTab from "$lib/components/FilterTab.svelte";
     import ViewSet from "$lib/components/ViewSet.svelte";
 
@@ -29,14 +28,10 @@
         </div>
     </div>
 {:else}
-    <div class="p-5 flex flex-col justify-center w-full">
-        <h1 class="text-2xl">
-            View options
-        </h1>
-        <ViewSet />
-        <h1 class="text-3xl">
-            Stats
-        </h1>
-        <FilterTab />
+    <div class="p-5 justify-center">
+        <div class="overscroll-contain">
+            <ViewSet/>
+            <FilterTab/>
+        </div>
     </div>
 {/if}

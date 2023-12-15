@@ -3,6 +3,8 @@ import type {ReadCommitResult} from "isomorphic-git";
 import git from "isomorphic-git";
 import {hashCode, randomInt, stringToColour} from "$lib/utils";
 import {DIRECTORY, FILE} from "$lib/icons";
+import prettyBytes from 'pretty-bytes';
+
 
 export class CurrentCommitDataHolder {
     private fs: IFs = {} as IFs;
@@ -12,11 +14,13 @@ export class CurrentCommitDataHolder {
     // Properties
     private oid = ''; // SHA-1 object id of the current commit
     private commitMessage = ''; // Commit message of the current commit
+    private commitAuthor = ''; // Commit author of the current commit
     private hierarchy = {}; // File system hierarchy
     // Data structure for the current commit, "TREEMAP" => {}
     private data = {};
     private stats = [];
     private filters = {};
+    private fileCache = {};
 
     async init(fs: IFs, cache: {}, commits: ReadCommitResult[]) {
         this.fs = fs;
@@ -28,6 +32,9 @@ export class CurrentCommitDataHolder {
         // Load the current commit message
         this.commitMessage = await git.readCommit({fs, dir: '/', oid: this.oid}).then((commit) => {
             return commit.commit.message.replace(/(?:\r\n|\r|\n)/g, '<br/>');
+        });
+        this.commitAuthor = await git.readCommit({fs, dir: '/', oid: this.oid}).then((commit) => {
+            return commit.commit.author.name;
         });
         // Create hierarchy from the current commit file system tree
         const tree = await git.listFiles({fs, dir: '/', ref: this.oid});
@@ -69,7 +76,17 @@ export class CurrentCommitDataHolder {
             for (let i = 0; i < parts.length; i++) {
                 const part = parts[i];
                 if (i === parts.length - 1) {
+                    // Get the size of the path
                     current[part] = path;
+                    const stats = this.fs.statSync(`/${path}`);
+                    this.fileCache[path] = {
+                        size: stats.size,
+                        mode: stats.mode,
+                        mtime: stats.mtime,
+                        ctime: stats.ctime,
+                        birthtime: stats.birthtime,
+                        fileName: path
+                    };
                 } else {
                     if (!current[part]) {
                         current[part] = {};
@@ -96,23 +113,32 @@ export class CurrentCommitDataHolder {
                 } else {
                     const fileName = item.split('/').pop();
                     const extension = fileName.split('.').pop() || 'No Extension';
+                    const fileSize = this.fileCache[dir[item]].size;
                     children.push({
-                        name: fileName, children: [],
+                        name: fileName,
+                        value: fileSize,
+                        children: [],
                         itemStyle: {
                             color: stringToColour(extension)
                         }
                     });
                 }
             }
-            return {name, children};
+            // Compute size of the current directory
+            let size = 0;
+            for (const child of children) {
+                size += child.value;
+            }
+            return {name, children, value: size};
         }
         tree['name'] = '/';
-        tree['children'] = traverse(this.hierarchy, '/')['children'];
+        const childrenRoot = traverse(this.hierarchy, '/');
+        tree['children'] = childrenRoot['children'];
+        tree['value'] = childrenRoot['value'];
         // Remove values with empty children
         const removeEmptyChildren = (tree) => {
             if (tree['children'].length === 0) {
                 delete tree['children'];
-                tree["value"] = 0;
             } else {
                 for (const child of tree['children']) {
                     removeEmptyChildren(child);
@@ -121,7 +147,6 @@ export class CurrentCommitDataHolder {
         }
         removeEmptyChildren(tree);
         this.data['tree'] = tree;
-
     }
 
     private async convertHierarchyToTreeMap() {
@@ -174,7 +199,14 @@ export class CurrentCommitDataHolder {
                 }
             }
         }
-        dag['nodes'].push({name: '/', id: hashCode('/'), x: 0, y: 0, symbol: DIRECTORY, symbolSize: Object.keys(this.hierarchy).length * 5});
+        dag['nodes'].push({
+            name: '/',
+            id: hashCode('/'),
+            x: 0,
+            y: 0,
+            symbol: DIRECTORY,
+            symbolSize: Object.keys(this.hierarchy).length * 5
+        });
         traverse(this.hierarchy, '/');
         // Map links, source and target are relative to links array
         for (const link of dag['links']) {

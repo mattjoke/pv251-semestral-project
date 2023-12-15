@@ -2,6 +2,7 @@
     import {echarts} from '$lib/utils.js';
     import {dataStore} from "$lib/stores/stores.js";
     import {getDefaultChartOption} from "$lib/utils.js";
+    import prettyBytes from "pretty-bytes";
 
     export let width: number;
     export let height: number;
@@ -37,7 +38,10 @@
             nodeGap: 50,
             tooltip: {
                 trigger: 'item',
-                triggerOn: 'mousemove'
+                triggerOn: 'mousemove',
+                formatter: (params) => {
+                    return `${params.data.name}: `+ prettyBytes(params.data.value);
+                }
             },
             title: {
                 left: 'center'
