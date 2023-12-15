@@ -4,6 +4,7 @@
     import {getDefaultChartOption, prettierEnum} from "$lib/utils.js";
     import GraphDepth from "$lib/components/GraphDepth.svelte";
     import prettyBytes from "pretty-bytes";
+    import CommitChooser from "$lib/components/CommitChooser.svelte";
 
     let chartInstance = null;
     chartStore.subscribe((value) => {
@@ -234,6 +235,7 @@
     <h1 class="text-2xl">
         View options
     </h1>
+    <CommitChooser />
     <p class="text-xl mt-5">Graph type</p>
     <div class="flex flex-col rounded-md shadow-sm w-full" role="group">
         {#each viewOption as option, i}

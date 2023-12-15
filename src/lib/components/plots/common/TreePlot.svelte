@@ -1,6 +1,6 @@
 <script lang="ts">
     import {echarts} from '$lib/utils.js';
-    import {dataStore} from "$lib/stores/stores.js";
+    import {dataStore, selectedCommitsStore} from "$lib/stores/stores.js";
     import {getDefaultChartOption} from "$lib/utils.js";
     import prettyBytes from "pretty-bytes";
 
@@ -8,13 +8,19 @@
     export let height: number;
 
     let data = {};
-    let commitTimeline = [];
     dataStore.subscribe((value) => {
         if (!value) {
             return;
         }
         data = value.data.tree;
-        commitTimeline = value.commits.map((item) => {
+        selectedCommitsStore.set(value.commits.slice(0, 10));
+    });
+    let commitTimeline = [];
+    selectedCommitsStore.subscribe((value) => {
+        if (!value) {
+            return;
+        }
+        commitTimeline = value.map((item) => {
             return {
                 value: item.oid.substring(0, 10),
                 tooltip: {

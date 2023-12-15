@@ -3,10 +3,6 @@
 
     let width = window.innerWidth * 0.7;
     let height = window.innerHeight * 0.7;
-    let state = false;
-
-    $: {
-    }
 </script>
 
 

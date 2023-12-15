@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {dataLoadingState, dataStore, repoStore} from '../stores/stores.js';
+    import {dataLoadingState, dataStore, repoStore, selectedCommitsStore} from '../stores/stores.js';
     import {LoadingState} from "$lib/objects/loadingState";
     import FileSystem from "$lib/components/plots/FileSystem.svelte";
     import CommitMessage from "$lib/components/CommitMessage.svelte";
