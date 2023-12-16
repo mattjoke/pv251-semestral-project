@@ -151,13 +151,17 @@ export class CurrentCommitDataHolder {
 
     private async convertHierarchyToTreeMap() {
         const computedTree = this.data['tree'];
-
-
-        this.data['treeMap'] = {
-            levels: [],
-            name: '/',
-            children: [],
+        // Add full path to each node
+        const traverse = (tree, path) => {
+            tree['path'] = path;
+            if (tree['children']) {
+                for (const child of tree['children']) {
+                    traverse(child, `${path}/${child['name']}`);
+                }
+            }
         }
+        traverse(computedTree, '/');
+        this.data['treeMap'] = computedTree;
     }
 
     private async convertHierarchyToDag() {

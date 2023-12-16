@@ -59,7 +59,7 @@
                         data: [data],
                         tooltip: {
                             formatter: (params) => {
-                                return `${params.data.name}: `+ prettyBytes(params.data.value);
+                                return `${params.data.name}: ` + prettyBytes(params.data.value);
                             }
                         },
                         label: {
@@ -81,7 +81,7 @@
                         data: [data],
                         tooltip: {
                             formatter: (params) => {
-                                return `${params.data.name}: `+ prettyBytes(params.data.value);
+                                return `${params.data.name}: ` + prettyBytes(params.data.value);
                             }
                         },
                         label: {
@@ -102,7 +102,7 @@
                         data: [data],
                         tooltip: {
                             formatter: (params) => {
-                                return `${params.data.name}: `+ prettyBytes(params.data.value);
+                                return `${params.data.name}: ` + prettyBytes(params.data.value);
                             }
                         },
                         label: {
@@ -115,12 +115,51 @@
                 break;
             case 'TREE_MAP':
                 graphDepthActive = false;
+                data = commitInstance.data.treeMap ?? [];
+                console.log(data);
                 newOption = {
                     series: getDefaultChartOption({
                         type: 'treemap',
-                        data: [data],
-                        layoutAlgorithm: 'squarified',
                         visibleMin: 300,
+                        label: {
+                            show: true,
+                            formatter: '{b}'
+                        },
+                        upperLabel: {
+                            show: true,
+                            height: 30
+                        },
+                        itemStyle: {
+                            borderColor: '#fff'
+                        },
+                        levels: [
+                            {
+                                itemStyle: {
+                                    borderColor: '#777',
+                                    borderWidth: 0,
+                                    gapWidth: 1
+                                },
+                                upperLabel: {
+                                    show: false
+                                }
+                            },
+                            {
+                                itemStyle: {
+                                    borderColor: '#555',
+                                    borderWidth: 5,
+                                    gapWidth: 1
+                                },
+                            },
+                            {
+                                colorSaturation: [0.35, 0.5],
+                                itemStyle: {
+                                    borderWidth: 5,
+                                    gapWidth: 1,
+                                    borderColorSaturation: 0.6
+                                }
+                            }
+                        ],
+                        data: [data]
                     })
                 };
                 break;
@@ -235,7 +274,7 @@
     <h1 class="text-2xl">
         View options
     </h1>
-    <CommitChooser />
+    <CommitChooser/>
     <p class="text-xl mt-5">Graph type</p>
     <div class="flex flex-col rounded-md shadow-sm w-full" role="group">
         {#each viewOption as option, i}
