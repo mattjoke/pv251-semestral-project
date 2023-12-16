@@ -7,12 +7,12 @@ import {DIRECTORY, FILE} from "$lib/icons";
 
 
 export class CurrentCommitDataHolder {
-    private fs: IFs = {} as IFs;
-    private cache: {} = {};
-    private commits: ReadCommitResult[] = []; // List of commits
+    fs: IFs = {} as IFs;
+    cache: {} = {};
+    commits: ReadCommitResult[] = []; // List of commits
 
     // Properties
-    private oid = ''; // SHA-1 object id of the current commit
+    oid = ''; // SHA-1 object id of the current commit
     private commitMessage = ''; // Commit message of the current commit
     private commitAuthor = ''; // Commit author of the current commit
     private hierarchy = {}; // File system hierarchy
@@ -22,33 +22,43 @@ export class CurrentCommitDataHolder {
     private filters = {};
     private fileCache = {};
 
+    // Tree file structure of the every commit
+    commitFS = {};
+
     async init(fs: IFs, cache: {}, commits: ReadCommitResult[]) {
+        await this.initWithSpecificCommit(fs, cache, commits, commits[0].oid);
+    }
+
+    async initWithSpecificCommit(fs: IFs, cache: {}, commits: ReadCommitResult[], oid: string) {
         this.fs = fs;
         this.cache = cache;
         this.commits = commits;
 
         // Load the current commit oid
-        this.oid = await git.resolveRef({fs, dir: '/', ref: 'HEAD'});
+        await this.checkout(oid)
+    }
+
+    // Checkout to another commit
+    async checkout(oid: string) {
+        this.oid = oid;
         // Load the current commit message
-        this.commitMessage = await git.readCommit({fs, dir: '/', oid: this.oid}).then((commit) => {
+        this.commitMessage = await git.readCommit({fs: this.fs, dir: '/', oid: this.oid}).then((commit) => {
             return commit.commit.message.replace(/(?:\r\n|\r|\n)/g, '<br/>');
         });
-        this.commitAuthor = await git.readCommit({fs, dir: '/', oid: this.oid}).then((commit) => {
+        this.commitAuthor = await git.readCommit({fs: this.fs, dir: '/', oid: this.oid}).then((commit) => {
             return commit.commit.author.name;
         });
-        // Create hierarchy from the current commit file system tree
-        const tree = await git.listFiles({fs, dir: '/', ref: this.oid});
 
+        // Create hierarchy from the current commit file system tree
+        const tree = await git.listFiles({fs: this.fs, dir: '/', oid: this.oid})
         // Build the hierarchy with the current commit file system tree
         await this.buildHierarchy(tree);
         // Generate statistics for the current commit
         await this.generateStats(tree);
-
         // Convert the hierarchy to Tree-specific data structure
         await this.convertHierarchyToTree();
         await this.convertHierarchyToDag();
         await this.convertHierarchyToTreeMap();
-
         // Generate filters for the current commit
         await this.generateFilters();
     }
@@ -58,14 +68,34 @@ export class CurrentCommitDataHolder {
             oid: this.oid,
             fs: this.hierarchy,
             stats: this.stats,
+            filters: this.filters,
+            data: this.data,
+            commits: this.commits,
+            commitMessage: this.commitMessage,
+            commitAuthor: this.commitAuthor
         }
+    }
+
+    static async generateCurrentCommitDataHolderWithSpecificCommit(fs: IFs, cache: {}, commits: ReadCommitResult[], commit: ReadCommitResult) {
+        const holder = new CurrentCommitDataHolder();
+        await holder.initWithSpecificCommit(fs, cache, commits, commit.oid);
+        return holder;
     }
 
     static async generateCurrentCommitDataHolder(fs: IFs, cache: {}, commits: ReadCommitResult[]) {
         const holder = new CurrentCommitDataHolder();
         await holder.init(fs, cache, commits);
-        // return holder.getData();
         return holder;
+    }
+
+    public async generateCommitFSWithHistory() {
+        // Create a file system tree for each commit
+        const commitFS = {};
+        for (const commit of this.commits) {
+            // if (commit.oid === this.oid) continue;
+            commitFS[commit.oid] = await CurrentCommitDataHolder.generateCurrentCommitDataHolderWithSpecificCommit(this.fs, this.cache, this.commits, commit);
+        }
+        this.commitFS = commitFS;
     }
 
     private async buildHierarchy(tree: string[]) {

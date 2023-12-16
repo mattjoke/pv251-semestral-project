@@ -11,6 +11,8 @@ export async function GET(event) {
     const cache = {};
     filesystemStore.set(fs);
 
+    const url = "https://github.com/mattjoke/pv251-semestral-project.git"
+
     let commits;
     try {
 
@@ -18,7 +20,7 @@ export async function GET(event) {
             fs,
             http,
             dir: "/",
-            url: "https://github.com/mattjoke/deep-neural-network.git",
+            url: url,
             ref: "main",
             cache: cache
         });
@@ -34,7 +36,7 @@ export async function GET(event) {
             fs,
             http,
             dir: "/",
-            url: "https://github.com/mattjoke/deep-neural-network.git",
+            url: url,
             ref: "master",
             cache: cache
         });
@@ -48,5 +50,6 @@ export async function GET(event) {
     }
 
     const data = await CurrentCommitDataHolder.generateCurrentCommitDataHolder(fs, cache, commits);
+    await data.generateCommitFSWithHistory();
     return json({message: "OK", data: data});
 }

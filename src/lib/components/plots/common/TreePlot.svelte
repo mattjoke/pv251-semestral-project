@@ -15,8 +15,8 @@
         }
         data = value.data.tree;
         allCommits = value.commits;
-        selectedCommitsStore.set([0, 10]);
     });
+
 
     let inside = {
         saveToStore: true,
@@ -37,6 +37,7 @@
                 }
             },
             title: {
+                text: "TEST",
                 left: 'center'
             },
             series: [
@@ -48,7 +49,7 @@
                         data: [data],
                     }
                 )
-            ]
+            ],
         }
     }
 </script>

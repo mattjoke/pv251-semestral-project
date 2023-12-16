@@ -55,6 +55,8 @@ export function echartsSave(node, option, saveToStore = false) {
     const chart = charts.init(node);
     chart.setOption(option);
     window.addEventListener('resize', () => chart.resize());
+    // chart.on('timelinechanged', (params) => {
+    //     )
     if (saveToStore) {
         chartStore.set(chart);
     }

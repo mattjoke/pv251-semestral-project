@@ -33,6 +33,18 @@
         selectedCommits = value;
     });
 
+    $: pickedCommits = allCommits.slice(selectedCommits[0], selectedCommits[1]);
+    $: timelineCommits = pickedCommits.map((item) => {
+        return {
+            value: item.oid.substring(0, 10),
+            tooltip: {
+                formatter: (params) => {
+                    return `Commit: ${item.oid.substring(0, 10)}<br/>Author: ${item.commit.author.name}<br/>Date: ${new Date(item.commit.author.timestamp * 1000)}<br/>Message: ${item.commit.message.replace(/(?:\r\n|\r|\n)/g, '<br/>')}`;
+                }
+            }
+        }
+    });
+
     const handleClick = (i, insideValue) => {
         viewOption = viewOption.map((option, index) => {
             if (index === i) {
@@ -53,12 +65,15 @@
         }
         let newOption = {};
         let data = [];
+        let commitFS = {};
         switch (insideValue) {
             case 'TREE':
                 graphDepthActive = true;
                 inputCounter = 1;
                 data = commitInstance.data.tree ?? [];
+                commitFS = commitInstance.commitFS ?? {};
                 newOption = {
+
                     series: getDefaultChartOption({
                         type: 'tree',
                         layout: 'orthogonal',
@@ -73,7 +88,8 @@
                             position: 'bottom',
                             rotate: 0,
                         }
-                    })
+                    }),
+
                 };
                 break;
             case 'TREE_VERTICAL':
@@ -263,22 +279,11 @@
         chartInstance.setOption(newOption, false, true);
     }
 
-    $: pickedCommits = allCommits.slice(selectedCommits[0], selectedCommits[1]);
-    $: timelineCommits = pickedCommits.map((item) => {
-        return {
-            value: item.oid.substring(0, 10),
-            tooltip: {
-                formatter: (params) => {
-                    return `Commit: ${item.oid.substring(0, 10)}<br/>Author: ${item.commit.author.name}<br/>Date: ${new Date(item.commit.author.timestamp * 1000)}<br/>Message: ${item.commit.message.replace(/(?:\r\n|\r|\n)/g, '<br/>')}`;
-                }
-            }
-        }
-    });
 
     let inputCounter = 1;
+    $: commitFS = commitInstance.commitFS ?? {};
     $: {
         if (chartInstance != null) {
-            console.log(pickedCommits, timelineCommits)
             let newOption = {
                 series: {
                     initialTreeDepth: inputCounter
@@ -295,7 +300,19 @@
                     },
                     series: {
                         initialTreeDepth: inputCounter
-                    }
+                    },
+                    options: Object.keys(commitFS).map((key) => {
+                        const data = commitFS[key].data.tree;
+                        console.log(data)
+                        return {
+                            title: {
+                                text: key
+                            },
+                            series: {
+                                data: [data]
+                            }
+                        }
+                    })
                 }
             }
             chartInstance.setOption(newOption, false, true);
