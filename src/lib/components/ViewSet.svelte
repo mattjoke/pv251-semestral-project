@@ -1,5 +1,5 @@
 <script>
-    import {chartStore, dataStore} from "$lib/stores/stores.js";
+    import {chartStore, dataStore, selectedCommitsStore} from "$lib/stores/stores.js";
     import {GraphStyle} from "$lib/objects/GraphStyle";
     import {getDefaultChartOption, prettierEnum} from "$lib/utils.js";
     import GraphDepth from "$lib/components/GraphDepth.svelte";
@@ -22,8 +22,15 @@
     let graphDepthActive = true;
 
     let commitInstance = null;
+    let allCommits;
     dataStore.subscribe((value) => {
         commitInstance = value;
+        allCommits = value.commits;
+    });
+
+    let selectedCommits;
+    selectedCommitsStore.subscribe((value) => {
+        selectedCommits = value;
     });
 
     const handleClick = (i, insideValue) => {
@@ -256,14 +263,41 @@
         chartInstance.setOption(newOption, false, true);
     }
 
+    $: pickedCommits = allCommits.slice(selectedCommits[0], selectedCommits[1]);
+    $: timelineCommits = pickedCommits.map((item) => {
+        return {
+            value: item.oid.substring(0, 10),
+            tooltip: {
+                formatter: (params) => {
+                    return `Commit: ${item.oid.substring(0, 10)}<br/>Author: ${item.commit.author.name}<br/>Date: ${new Date(item.commit.author.timestamp * 1000)}<br/>Message: ${item.commit.message.replace(/(?:\r\n|\r|\n)/g, '<br/>')}`;
+                }
+            }
+        }
+    });
+
     let inputCounter = 1;
     $: {
         if (chartInstance != null) {
+            console.log(pickedCommits, timelineCommits)
             let newOption = {
                 series: {
                     initialTreeDepth: inputCounter
                 }
             };
+            if (timelineCommits.length > 0) {
+                newOption = {
+                    timeline: {
+                        axisType: 'category',
+                        inverse: true,
+                        data: timelineCommits,
+                        left: '1%',
+                        right: '1%',
+                    },
+                    series: {
+                        initialTreeDepth: inputCounter
+                    }
+                }
+            }
             chartInstance.setOption(newOption, false, true);
         }
     }

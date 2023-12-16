@@ -8,28 +8,14 @@
     export let height: number;
 
     let data = {};
+    let allCommits = [];
     dataStore.subscribe((value) => {
         if (!value) {
             return;
         }
         data = value.data.tree;
-        selectedCommitsStore.set(value.commits.slice(0, 10));
-    });
-    let commitTimeline = [];
-    selectedCommitsStore.subscribe((value) => {
-        if (!value) {
-            return;
-        }
-        commitTimeline = value.map((item) => {
-            return {
-                value: item.oid.substring(0, 10),
-                tooltip: {
-                    formatter: (params) => {
-                        return `Commit: ${item.oid.substring(0, 10)}<br/>Author: ${item.commit.author.name}<br/>Date: ${new Date(item.commit.author.timestamp * 1000)}<br/>Message: ${item.commit.message.replace(/(?:\r\n|\r|\n)/g, '<br/>')}`;
-                    }
-                }
-            }
-        });
+        allCommits = value.commits;
+        selectedCommitsStore.set([0, 10]);
     });
 
     let inside = {
@@ -37,7 +23,8 @@
         option: {
             timeline: {
                 axisType: 'category',
-                data: commitTimeline,
+                inverse: true,
+                data: [],
                 left: '1%',
                 right: '1%',
             },
