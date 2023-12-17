@@ -1,8 +1,7 @@
 <script lang="ts">
-    import {dataLoadingState, dataStore, repoStore, selectedCommitsStore} from '../stores/stores.js';
+    import {dataLoadingState, repoStore} from '../stores/stores.js';
     import {LoadingState} from "$lib/objects/loadingState";
     import FileSystem from "$lib/components/plots/FileSystem.svelte";
-    import CommitMessage from "$lib/components/CommitMessage.svelte";
 
     let gitRepoUrl: string = '';
     repoStore.subscribe((value) => {
@@ -17,15 +16,6 @@
         error = value === LoadingState.ERROR;
         loading = value === LoadingState.SUCCESS;
     });
-
-    let commitMessage: string = '';
-    let commitAuthor: string = '';
-    let shaTag: string = '';
-    dataStore.subscribe(value => {
-        shaTag = value.oid.substring(0, 10);
-        commitMessage = value.commitMessage;
-        commitAuthor = value.commitAuthor;
-    })
 </script>
 
 {#if error}
@@ -65,10 +55,6 @@
     <div class="flex flex-col w-full h-full p-5">
         <div class="flex flex-col items-center">
             <h1 class="text-3xl font-bold">{gitRepoUrl}</h1>
-            <p class="text-gray-500">Commit: {shaTag}</p>
-            <p class="text-gray-500">Message:
-                <CommitMessage commitMessage={commitMessage} commitAuthor={commitAuthor}/>
-            </p>
         </div>
         <FileSystem/>
     </div>

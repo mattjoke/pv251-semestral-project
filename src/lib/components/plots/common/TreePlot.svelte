@@ -1,7 +1,6 @@
 <script lang="ts">
-    import {echarts} from '$lib/utils.js';
-    import {dataStore, selectedCommitsStore} from "$lib/stores/stores.js";
-    import {getDefaultChartOption} from "$lib/utils.js";
+    import {echarts, getDefaultChartOption} from '$lib/utils.js';
+    import {dataStore} from "$lib/stores/stores.js";
     import prettyBytes from "pretty-bytes";
 
     export let width: number;
@@ -33,11 +32,12 @@
                 trigger: 'item',
                 triggerOn: 'mousemove',
                 formatter: (params) => {
-                    return `${params.data.name}: `+ prettyBytes(params.data.value || 0);
+                    return `${params.data.name}: ` + prettyBytes(params.data.value || 0);
                 }
             },
             title: {
-                text: "TEST",
+                text: "Placeholder",
+                subtext: "Placeholder",
                 left: 'center'
             },
             series: [

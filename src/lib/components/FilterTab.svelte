@@ -1,9 +1,13 @@
 <script>
 
     import ProgressBar from "$lib/components/ProgresBar.svelte";
-    import {dataStore} from "$lib/stores/stores.js";
+    import {dataStore, filterStore} from "$lib/stores/stores.js";
     import {mapValuesToPercentage, stringToColour} from "$lib/utils.js";
 
+    let selectedFilters = [];
+    filterStore.subscribe(value => {
+        selectedFilters = value;
+    })
     let stats;
     let filters = [
         {
@@ -23,7 +27,16 @@
         }).sort((a, b) => b.value - a.value)
     })
 
+    $: console.log(selectedFilters)
+
     const handleClick = (i) => {
+        filterStore.update(value => {
+            if (value.includes(filters[i].name)) {
+                return value.filter(item => item !== filters[i].name)
+            } else {
+                return [...value, filters[i].name]
+            }
+        })
         console.log("clicked", filters[i])
     }
 </script>
@@ -33,18 +46,26 @@
     <h1 class="text-2xl text-gray-700">
         Filters
     </h1>
-    <ProgressBar percentage={mapValuesToPercentage(stats.files, stats.directory)} rightColor="#FACA15"
-                 rightTitle="Folders" leftTitle="Files" leftColor="#0E9F6E" id="file-bar"/>
-    <div class="w-full flex flex-row justify-between -mt-3">
-        <div class="mb-1 text-base font-medium">{stats.files}</div>
-        <div class="mb-1 text-base font-medium">{stats.directory}</div>
-    </div>
-
-    <div class="w-full border-[0.5px] border-gray-300"></div>
-    <div class="hover:text-gray-500 mt-3">
-        {#each filters as filter,i}
-            <ProgressBar percentage={filter.percentage} leftColor={filter.color} rightTitle="{filter.value}"
-                         leftTitle=".{filter.name}" id="pb-{i}" on:click={() => handleClick(i)}/>
-        {/each}
+    <div class="overflow-y-auto h-1/2">
+        <ProgressBar percentage={mapValuesToPercentage(stats.files, stats.directory)} rightColor="#FACA15"
+                     rightTitle="Folders" leftTitle="Files" leftColor="#0E9F6E" id="file-bar"/>
+        <div class="w-full flex flex-row justify-between -mt-3">
+            <div class="mb-1 text-base font-medium">{stats.files}</div>
+            <div class="mb-1 text-base font-medium">{stats.directory}</div>
+        </div>
+        <div class="w-full border-[0.5px] border-gray-300"></div>
+        <div class="hover:text-gray-500 mt-3">
+            {#each filters as filter,i}
+                {#if selectedFilters.includes(filter.name)}
+                    <div class="underline font-extrabold">
+                        <ProgressBar percentage={filter.percentage} leftColor={filter.color} rightTitle="{filter.value}"
+                                     leftTitle=".{filter.name}" id="pb-{i}" on:click={() => handleClick(i)}/>
+                    </div>
+                {:else}
+                    <ProgressBar percentage={filter.percentage} leftColor={filter.color} rightTitle="{filter.value}"
+                                 leftTitle=".{filter.name}" id="pb-{i}" on:click={() => handleClick(i)}/>
+                {/if}
+            {/each}
+        </div>
     </div>
 </div>

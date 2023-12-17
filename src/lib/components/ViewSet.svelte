@@ -333,9 +333,14 @@
                         newData = [d];
                     }
 
+                    const commit = allCommits.find((item) => {
+                        return item.oid === key;
+                    });
+
                     return {
                         title: {
-                            text: key
+                            text: `Commit: ${key.substring(0, 10)}`,
+                            subtext: commit.commit.message
                         },
                         series: {
                             levels: [

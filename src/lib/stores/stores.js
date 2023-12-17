@@ -11,3 +11,4 @@ export const chartStore = writable({});
 export const filesystemStore = writable(createFsFromVolume(new Volume()));
 export const dataStore = writable(new CurrentCommitDataHolder());
 export const selectedCommitsStore = writable([0, 10]);
+export const filterStore = writable([]);

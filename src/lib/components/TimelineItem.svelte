@@ -1,6 +1,6 @@
 <script>
     import {Popover} from "flowbite-svelte";
-    import {slide, fade} from "svelte/transition";
+    import {fade, slide} from "svelte/transition";
 
     export let commit;
 </script>

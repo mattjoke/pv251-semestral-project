@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {dataLoadingState, repoStore, dataStore} from "$lib/stores/stores.js";
+    import {dataLoadingState, dataStore, repoStore} from "$lib/stores/stores.js";
     import {isInvalidLink} from "$lib/utils.js";
     import {LoadingState} from "$lib/objects/loadingState";
 
