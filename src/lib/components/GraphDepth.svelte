@@ -4,7 +4,7 @@
     export let depth = false;
     export let counter = 1;
 
-    export function updateCounter(value) {
+    const updateCounter = (value) => {
         counter += value;
         if (counter < 1) {
             counter = 1;

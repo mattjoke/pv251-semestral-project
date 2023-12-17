@@ -25,6 +25,14 @@ export async function GET(event) {
             cache: cache
         });
 
+        await git.fetch({
+            fs,
+            http,
+            dir: "/",
+            ref: "main",
+            cache: cache
+        });
+
         commits = await git.log({
             fs,
             dir: "/",
@@ -37,6 +45,14 @@ export async function GET(event) {
             http,
             dir: "/",
             url: url,
+            ref: "master",
+            cache: cache
+        });
+
+        await git.fetch({
+            fs,
+            http,
+            dir: "/",
             ref: "master",
             cache: cache
         });

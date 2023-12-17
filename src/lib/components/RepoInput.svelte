@@ -13,7 +13,7 @@
         try {
             const response = await fetch('/api/fetch');
             const data = await response.json();
-            console.log(data.data.commitAuthor);
+            console.log(data.data)
             dataStore.set(data.data)
             dataLoadingState.set(LoadingState.SUCCESS);
         } catch (e) {

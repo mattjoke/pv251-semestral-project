@@ -41,6 +41,14 @@ export class CurrentCommitDataHolder {
     // Checkout to another commit
     async checkout(oid: string) {
         this.oid = oid;
+
+        await git.checkout({
+            fs: this.fs,
+            dir: '/',
+            ref: this.oid,
+            force: true
+        });
+
         // Load the current commit message
         this.commitMessage = await git.readCommit({fs: this.fs, dir: '/', oid: this.oid}).then((commit) => {
             return commit.commit.message.replace(/(?:\r\n|\r|\n)/g, '<br/>');
@@ -50,7 +58,7 @@ export class CurrentCommitDataHolder {
         });
 
         // Create hierarchy from the current commit file system tree
-        const tree = await git.listFiles({fs: this.fs, dir: '/', oid: this.oid})
+        const tree = await git.listFiles({fs: this.fs, dir: '/', oid: this.oid});
         // Build the hierarchy with the current commit file system tree
         await this.buildHierarchy(tree);
         // Generate statistics for the current commit

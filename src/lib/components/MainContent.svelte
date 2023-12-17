@@ -25,7 +25,6 @@
         shaTag = value.oid.substring(0, 10);
         commitMessage = value.commitMessage;
         commitAuthor = value.commitAuthor;
-        console.log(value);
     })
 </script>
 
