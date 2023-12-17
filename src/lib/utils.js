@@ -80,7 +80,6 @@ export const getDefaultChartOption = (object) => {
             }
             return DIRECTORY;
         },
-        initialTreeDepth: 1,
         itemStyle: {
             color: '#FACA15',
             borderWidth: 1,

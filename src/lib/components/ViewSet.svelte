@@ -22,6 +22,7 @@
     let graphDepthActive = true;
 
     let currentGraphType = GraphStyle.TREE;
+    let inputCounter = 1;
 
     let commitInstance = null;
     let allCommits;
@@ -50,27 +51,15 @@
     const updateGraphOptions = (insideValue) => {
         let newOption = {};
         let data = [];
-        let commitFS = {};
+
         switch (insideValue) {
             case 'TREE':
                 graphDepthActive = true;
                 currentGraphType = GraphStyle.TREE;
-                inputCounter = 1;
                 data = commitInstance.data.tree ?? [];
-                commitFS = commitInstance.commitFS ?? {};
                 newOption = {
-                    options: Object.keys(commitFS).map((key) => {
-                        const d = commitFS[key].data.tree;
-                        return {
-                            title: {
-                                text: key
-                            },
-                            series: {
-                                data: [d]
-                            }
-                        }
-                    }),
                     series: getDefaultChartOption({
+                        initialTreeDepth: inputCounter,
                         type: 'tree',
                         layout: 'orthogonal',
                         orient: 'vertical',
@@ -85,27 +74,15 @@
                             rotate: 0,
                         }
                     }),
-
                 };
                 break;
             case 'TREE_VERTICAL':
                 graphDepthActive = true;
                 currentGraphType = GraphStyle.TREE_VERTICAL;
-                inputCounter = 1;
                 data = commitInstance.data.tree ?? [];
                 newOption = {
-                    options: Object.keys(commitFS).map((key) => {
-                        const d = commitFS[key].data.tree;
-                        return {
-                            title: {
-                                text: key
-                            },
-                            series: {
-                                data: [d]
-                            }
-                        }
-                    }),
                     series: getDefaultChartOption({
+                        initialTreeDepth: inputCounter,
                         type: 'tree',
                         layout: 'orthogonal',
                         orient: 'horizontal',
@@ -125,21 +102,10 @@
             case 'RADIAL_TREE':
                 graphDepthActive = true;
                 currentGraphType = GraphStyle.RADIAL_TREE;
-                inputCounter = 1;
                 data = commitInstance.data.tree ?? [];
                 newOption = {
-                    options: Object.keys(commitFS).map((key) => {
-                        const d = commitFS[key].data.tree;
-                        return {
-                            title: {
-                                text: key
-                            },
-                            series: {
-                                data: [d]
-                            }
-                        }
-                    }),
                     series: getDefaultChartOption({
+                        initialTreeDepth: inputCounter,
                         type: 'tree',
                         layout: 'radial',
                         data: [data],
@@ -160,47 +126,9 @@
                 graphDepthActive = false;
                 currentGraphType = GraphStyle.TREE_MAP;
                 data = commitInstance.data.treeMap ?? [];
-                console.log(data);
                 newOption = {
-                    options: Object.keys(commitFS).map((key) => {
-                        const d = commitFS[key].data.treeMap;
-                        return {
-                            title: {
-                                text: key
-                            },
-                            series: {
-                                levels: [
-                                    {
-                                        itemStyle: {
-                                            borderColor: '#777',
-                                            borderWidth: 0,
-                                            gapWidth: 1
-                                        },
-                                        upperLabel: {
-                                            show: false
-                                        }
-                                    },
-                                    {
-                                        itemStyle: {
-                                            borderColor: '#555',
-                                            borderWidth: 5,
-                                            gapWidth: 1
-                                        },
-                                    },
-                                    {
-                                        colorSaturation: [0.35, 0.5],
-                                        itemStyle: {
-                                            borderWidth: 5,
-                                            gapWidth: 1,
-                                            borderColorSaturation: 0.6
-                                        }
-                                    }
-                                ],
-                                data: [d]
-                            }
-                        }
-                    }),
                     series: getDefaultChartOption({
+                        initialTreeDepth: inputCounter,
                         type: 'treemap',
                         visibleMin: 300,
                         label: {
@@ -249,22 +177,10 @@
                 graphDepthActive = false;
                 currentGraphType = GraphStyle.DAG;
                 data = commitInstance.data.dag ?? [];
-                commitFS = commitInstance.commitFS ?? {};
                 newOption = {
-                    options: Object.keys(commitFS).map((key) => {
-                        const d = commitFS[key].data.dag;
-                        return {
-                            title: {
-                                text: key
-                            },
-                            series: {
-                                data: d.nodes,
-                                links: [...d.links]
-                            }
-                        }
-                    }),
                     series: getDefaultChartOption(
                         {
+                            initialTreeDepth: inputCounter,
                             type: 'graph',
                             layout: 'none',
                             data: data.nodes,
@@ -290,22 +206,10 @@
                 graphDepthActive = false;
                 currentGraphType = GraphStyle.FORCE_DIRECTED;
                 data = commitInstance.data.dag ?? [];
-                commitFS = commitInstance.commitFS ?? {};
                 newOption = {
-                    options: Object.keys(commitFS).map((key) => {
-                        const d = commitFS[key].data.dag;
-                        return {
-                            title: {
-                                text: key
-                            },
-                            series: {
-                                data: d.nodes,
-                                links: [...d.links]
-                            }
-                        }
-                    }),
                     series: getDefaultChartOption(
                         {
+                            initialTreeDepth: inputCounter,
                             type: 'graph',
                             layout: 'force',
                             data: data.nodes,
@@ -335,22 +239,10 @@
                 graphDepthActive = false;
                 currentGraphType = GraphStyle.CIRCULAR_GRAPH;
                 data = commitInstance.data.dag ?? [];
-                commitFS = commitInstance.commitFS ?? {};
                 newOption = {
-                    options: Object.keys(commitFS).map((key) => {
-                        const d = commitFS[key].data.dag;
-                        return {
-                            title: {
-                                text: key
-                            },
-                            series: {
-                                data: d.nodes,
-                                links: [...d.links]
-                            }
-                        }
-                    }),
                     series: getDefaultChartOption(
                         {
+                            initialTreeDepth: inputCounter,
                             type: 'graph',
                             layout: 'circular',
                             data: data.nodes,
@@ -401,24 +293,85 @@
         chartInstance.setOption(newOption, false, true);
     }
 
-
-    let inputCounter = 1;
     $: {
         if (chartInstance != null) {
-            const newOption = Object.assign({
-                timeline: {
-                    axisType: 'category',
-                    inverse: true,
-                    data: timelineCommits ?? [],
-                    left: '1%',
-                    right: '1%',
-                },
+            chartInstance.setOption({
                 series: {
-                    initialTreeDepth: inputCounter
+                    initialTreeDepth: inputCounter,
+                }
+            }, false, true);
+        }
+    }
+
+    $: {
+        if (chartInstance != null) {
+            let commitFS = commitInstance.commitFS ?? {};
+            let computedCommitFS = Object.keys(commitFS).filter((item) => {
+                // Check if the commit is in the picked commits
+                return pickedCommits.some((commit) => {
+                    return commit.oid === item;
+                });
+            });
+
+            const updateOption = {
+                timeline: {
+                    data: timelineCommits ?? [],
                 },
-            }, updateGraphOptions(currentGraphType));
-            newOption.series.initialTreeDepth = inputCounter;
-            chartInstance.setOption(newOption, false, true);
+                options: computedCommitFS.map((key) => {
+                    let d = commitFS[key].data.tree;
+
+                    let newData = [];
+                    let newLinks = [];
+                    if (currentGraphType === GraphStyle.TREE_MAP) {
+                        d = commitFS[key].data.treeMap;
+                        newData = [d];
+                    } else if (currentGraphType === GraphStyle.DAG || currentGraphType === GraphStyle.FORCE_DIRECTED || currentGraphType === GraphStyle.CIRCULAR_GRAPH) {
+                        d = commitFS[key].data.dag;
+                        newData = d.nodes;
+                        newLinks = [...d.links];
+                    } else {
+                        newData = [d];
+                    }
+
+                    return {
+                        title: {
+                            text: key
+                        },
+                        series: {
+                            levels: [
+                                {
+                                    itemStyle: {
+                                        borderColor: '#777',
+                                        borderWidth: 0,
+                                        gapWidth: 1
+                                    },
+                                    upperLabel: {
+                                        show: false
+                                    }
+                                },
+                                {
+                                    itemStyle: {
+                                        borderColor: '#555',
+                                        borderWidth: 5,
+                                        gapWidth: 1
+                                    },
+                                },
+                                {
+                                    colorSaturation: [0.35, 0.5],
+                                    itemStyle: {
+                                        borderWidth: 5,
+                                        gapWidth: 1,
+                                        borderColorSaturation: 0.6
+                                    }
+                                }
+                            ],
+                            data: newData,
+                            links: newLinks,
+                        }
+                    }
+                }),
+            }
+            chartInstance.setOption(updateOption, false, true);
         }
     }
 </script>

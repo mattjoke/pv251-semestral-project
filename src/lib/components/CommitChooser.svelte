@@ -1,6 +1,6 @@
 <script>
     import {Button, Modal, Tooltip} from "flowbite-svelte";
-    import {selectedCommitsStore} from "$lib/stores/stores.js";
+    import {chartStore, selectedCommitsStore} from "$lib/stores/stores.js";
     import TimelineDrawer from "$lib/components/TimelineDrawer.svelte";
 
     let defaultModal = false;
@@ -25,11 +25,27 @@
     const resetPicker = () => {
         selectedCommitsStore.set([0, 10]);
     }
+
+    const openModal = () => {
+        chartStore.subscribe(value => {
+            if (value !== null) {
+                value.setOption(
+                    {
+                        timeline: {
+                            currentIndex: 0,
+                            autoPlay: false,
+                        }
+                    }, false, true
+                )
+            }
+        });
+        defaultModal = true;
+    }
 </script>
 
 <div class="flex flex-col">
     <p class="text-xl mt-5">Commit Timeline</p>
-    <button type="button" on:click={() => defaultModal = true}
+    <button type="button" on:click={() => openModal()}
             class="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200">
         Change Range
     </button>
