@@ -28,7 +28,7 @@
     $: containsFolder = filters.filter(item => item.name === "directory").length > 0;
     $: containsFile = filters.filter(item => item.name === "file").length > 0;
 
-    console.log(containsFolder, containsFile, "OK");
+    // console.log(containsFolder, containsFile, "OK");
 </script>
 
 <div class="group cursor-pointer" id="filter-{id}" on:click on:keypress>

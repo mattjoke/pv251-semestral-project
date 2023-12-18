@@ -214,7 +214,7 @@ export class CurrentCommitDataHolder {
                 const isObject = typeof dir[item] === 'object';
                 let fileSize = 0;
                 dag['nodes'].push({
-                    id: hashCode(item),
+                    id: hashCode(`${dir}/${item}`),
                     x: randomInt(-200, 200),
                     y: randomInt(-200, 200),
                     path: dir[item],

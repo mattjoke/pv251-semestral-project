@@ -33,7 +33,7 @@
         }).sort((a, b) => b.value - a.value)
     })
 
-    $: console.log(selectedFilters)
+    // $: console.log(selectedFilters)
 
     const handleClick = (i) => {
         filterStore.update(value => {

@@ -2,6 +2,7 @@
     import {advancedOptionsStore, dataLoadingState, dataStore, repoStore} from "$lib/stores/stores.js";
     import {isInvalidLink} from "$lib/utils.js";
     import {LoadingState} from "$lib/objects/loadingState";
+    import {fetchData} from "$lib/objects/DataLoader";
 
     let advancedOptions;
     advancedOptionsStore.subscribe(value => advancedOptions = value);
@@ -17,18 +18,19 @@
         repoStore.set(repoLink);
         dataLoadingState.set(LoadingState.LOADING);
         try {
-            const response = await fetch('/api/fetch', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    repoLink: repoLink,
-                    branch: advancedOptions.branch,
-                    commits: advancedOptions.commits,
-                })
-
-            });
+            // const response = await fetch('/api/fetch', {
+            //     method: 'POST',
+            //     headers: {
+            //         'Content-Type': 'application/json'
+            //     },
+            //     body: JSON.stringify({
+            //         repoLink: repoLink,
+            //         branch: advancedOptions.branch,
+            //         commits: advancedOptions.commits,
+            //     })
+            //
+            // });
+            const response = await fetchData(repoLink, advancedOptions.branch, advancedOptions.commits);
             const data = await response.json();
             if (data.message === "NOK") {
                 dataLoadingState.set(LoadingState.ERROR)
