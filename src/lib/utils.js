@@ -1,6 +1,7 @@
 import {chartStore} from "$lib/stores/stores.js";
 import * as charts from 'echarts';
 import {DIRECTORY, FILE} from "$lib/icons.js";
+import {randomBytes} from "crypto";
 
 export const isInvalidLink = (link) => {
     const regex = /https?:\/\/[^\s$.?#].\S*$/gm;
@@ -126,14 +127,19 @@ export const stringToColour = (str) => {
 }
 
 // Hash
-export const hashCode = (str) => {
+export const hashCode2 = (str) => {
+    const random = randomBytes(128)
+    return random.toString('hex');
+}
+
+export const longHashCode = (str) => {
     let hash = 0;
     if (str.length === 0) {
         return hash;
     }
     for (let i = 0; i < str.length; i++) {
         let char = str.charCodeAt(i);
-        hash = ((hash << 5) - hash) + char;
+        hash = ((hash << 31) - hash) + char;
     }
     return hash;
 }

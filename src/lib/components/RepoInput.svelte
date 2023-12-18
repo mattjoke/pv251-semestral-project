@@ -18,19 +18,19 @@
         repoStore.set(repoLink);
         dataLoadingState.set(LoadingState.LOADING);
         try {
-            // const response = await fetch('/api/fetch', {
-            //     method: 'POST',
-            //     headers: {
-            //         'Content-Type': 'application/json'
-            //     },
-            //     body: JSON.stringify({
-            //         repoLink: repoLink,
-            //         branch: advancedOptions.branch,
-            //         commits: advancedOptions.commits,
-            //     })
-            //
-            // });
-            const response = await fetchData(repoLink, advancedOptions.branch, advancedOptions.commits);
+            const response = await fetch('/api/fetch', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    repoLink: repoLink,
+                    branch: advancedOptions.branch,
+                    commits: advancedOptions.commits,
+                })
+
+            });
+            // const response = await fetchData(repoLink, advancedOptions.branch, advancedOptions.commits);
             const data = await response.json();
             if (data.message === "NOK") {
                 dataLoadingState.set(LoadingState.ERROR)

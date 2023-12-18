@@ -2,7 +2,7 @@
 import type {IFs} from "memfs";
 import type {ReadCommitResult} from "isomorphic-git";
 import git from "isomorphic-git";
-import {hashCode, randomInt, stringToColour} from "$lib/utils";
+import {hashCode2, randomInt, stringToColour} from "$lib/utils";
 import {DIRECTORY, FILE} from "$lib/icons";
 
 
@@ -208,13 +208,13 @@ export class CurrentCommitDataHolder {
         dag['nodes'] = [];
         dag['links'] = [];
 
-        const traverse = (dir, name) => {
+        const traverse = (dir, nameHash, name) => {
             for (const item of Object.keys(dir)) {
                 const extension = item.split('.').pop() || 'No Extension';
                 const isObject = typeof dir[item] === 'object';
-                let fileSize = 0;
+                const hash = hashCode2(dir[item].toString());
                 dag['nodes'].push({
-                    id: hashCode(`${dir}/${item}`),
+                    id: hash,
                     x: randomInt(-200, 200),
                     y: randomInt(-200, 200),
                     path: dir[item],
@@ -228,21 +228,22 @@ export class CurrentCommitDataHolder {
                 });
                 dag['links'].push(
                     {
-                        source: hashCode(name),
-                        target: hashCode(item),
+                        source: hash,
+                        target: nameHash,
                         label: {
                             formatter: `${name} -> ${item}`
                         }
                     }
                 );
                 if (isObject) {
-                    traverse(dir[item], item);
+                    traverse(dir[item], hash, item);
                 }
             }
         }
+        const rootHash = hashCode2('/');
         dag['nodes'].push({
             name: '/',
-            id: hashCode('/'),
+            id: rootHash,
             isDirectory: true,
             x: 0,
             y: 0,
@@ -252,7 +253,7 @@ export class CurrentCommitDataHolder {
             },
             symbolSize: Object.keys(this.hierarchy).length * 5
         });
-        traverse(this.hierarchy, '/');
+        traverse(this.hierarchy, rootHash, '/');
         // Map links, source and target are relative to links array
         for (const link of dag['links']) {
             link.source = dag['nodes'].findIndex((node) => node.id === link.source);

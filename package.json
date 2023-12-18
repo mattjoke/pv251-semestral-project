@@ -2,7 +2,7 @@
 	"name": "sveltekit-2",
 	"version": "0.0.1",
 	"scripts": {
-		"dev": "vite dev",
+		"dev": "npm install && vite dev",
 		"dev:host": "vite dev --host",
 		"build": "vite build",
 		"preview": "vite preview",

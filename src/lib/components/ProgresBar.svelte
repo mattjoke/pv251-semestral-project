@@ -31,7 +31,7 @@
     // console.log(containsFolder, containsFile, "OK");
 </script>
 
-<div class="group cursor-pointer" id="filter-{id}" on:click on:keypress>
+<div class="group cursor-pointer" id="filter-{id}" on:click on:keypress role="button" tabindex="0">
     <div class="w-full flex flex-row justify-between group-hover:text-black">
         <div class="mb-1 font-medium">{leftTitle}</div>
         <div class="mb-1 font-medium {rightTitle === 'Right Title' ? 'invisible' : 'visible'}">{rightTitle}</div>
