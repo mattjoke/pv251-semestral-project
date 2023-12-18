@@ -1,7 +1,7 @@
 import {chartStore} from "$lib/stores/stores.js";
 import * as charts from 'echarts';
 import {DIRECTORY, FILE} from "$lib/icons.js";
-import {randomBytes} from "crypto";
+import {nanoid} from 'nanoid'
 
 export const isInvalidLink = (link) => {
     const regex = /https?:\/\/[^\s$.?#].\S*$/gm;
@@ -127,9 +127,8 @@ export const stringToColour = (str) => {
 }
 
 // Hash
-export const hashCode2 = (str) => {
-    const random = randomBytes(128)
-    return random.toString('hex');
+export const hashCode = (str) => {
+    return nanoid();
 }
 
 export const longHashCode = (str) => {

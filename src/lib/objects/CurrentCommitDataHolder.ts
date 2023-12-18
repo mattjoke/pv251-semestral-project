@@ -2,7 +2,7 @@
 import type {IFs} from "memfs";
 import type {ReadCommitResult} from "isomorphic-git";
 import git from "isomorphic-git";
-import {hashCode2, randomInt, stringToColour} from "$lib/utils";
+import {hashCode, randomInt, stringToColour} from "$lib/utils";
 import {DIRECTORY, FILE} from "$lib/icons";
 
 
@@ -212,7 +212,7 @@ export class CurrentCommitDataHolder {
             for (const item of Object.keys(dir)) {
                 const extension = item.split('.').pop() || 'No Extension';
                 const isObject = typeof dir[item] === 'object';
-                const hash = hashCode2(dir[item].toString());
+                const hash = hashCode(dir[item].toString());
                 dag['nodes'].push({
                     id: hash,
                     x: randomInt(-200, 200),
@@ -240,7 +240,7 @@ export class CurrentCommitDataHolder {
                 }
             }
         }
-        const rootHash = hashCode2('/');
+        const rootHash = hashCode('/');
         dag['nodes'].push({
             name: '/',
             id: rootHash,
