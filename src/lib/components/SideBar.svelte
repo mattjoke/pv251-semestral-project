@@ -1,7 +1,6 @@
 <script lang="ts">
     import {dataLoadingState} from "$lib/stores/stores.js";
     import {LoadingState} from "$lib/objects/loadingState";
-    import FilterTab from "$lib/components/FilterTab.svelte";
     import ViewSet from "$lib/components/ViewSet.svelte";
 
     let loading = true;
@@ -28,10 +27,7 @@
         </div>
     </div>
 {:else}
-    <div class="p-5 justify-center">
-        <div class="overscroll-contain">
-            <ViewSet/>
-            <FilterTab/>
-        </div>
+    <div class="p-5 h-[10px] bg-gray-100">
+        <ViewSet/>
     </div>
 {/if}

@@ -40,29 +40,34 @@ export async function GET(event) {
             cache: cache
         });
     } catch (e) {
-        await git.clone({
-            fs,
-            http,
-            dir: "/",
-            url: url,
-            ref: "master",
-            cache: cache
-        });
+        try {
 
-        await git.fetch({
-            fs,
-            http,
-            dir: "/",
-            ref: "master",
-            cache: cache
-        });
+            await git.clone({
+                fs,
+                http,
+                dir: "/",
+                url: url,
+                ref: "master",
+                cache: cache
+            });
 
-        commits = await git.log({
-            fs,
-            dir: "/",
-            ref: "master",
-            cache: cache
-        });
+            await git.fetch({
+                fs,
+                http,
+                dir: "/",
+                ref: "master",
+                cache: cache
+            });
+
+            commits = await git.log({
+                fs,
+                dir: "/",
+                ref: "master",
+                cache: cache
+            });
+        } catch (e2) {
+            return json({message: "NOK", data: []})
+        }
     }
 
     const data = await CurrentCommitDataHolder.generateCurrentCommitDataHolder(fs, cache, commits);

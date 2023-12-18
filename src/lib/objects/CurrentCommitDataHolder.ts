@@ -219,6 +219,7 @@ export class CurrentCommitDataHolder {
                     y: randomInt(-200, 200),
                     path: dir[item],
                     name: item,
+                    isDirectory: isObject,
                     symbol: isObject ? DIRECTORY : FILE,
                     symbolSize: isObject ? Object.keys(dir[item]).length * 5 : 10,
                     itemStyle: {
@@ -242,9 +243,13 @@ export class CurrentCommitDataHolder {
         dag['nodes'].push({
             name: '/',
             id: hashCode('/'),
+            isDirectory: true,
             x: 0,
             y: 0,
             symbol: DIRECTORY,
+            itemStyle: {
+                color: "#FACA15"
+            },
             symbolSize: Object.keys(this.hierarchy).length * 5
         });
         traverse(this.hierarchy, '/');

@@ -23,7 +23,7 @@
         <div class="col-span-3 h-full">
             <MainContent/>
         </div>
-        <div class="bg-gray-100">
+        <div class="flex flex-col flex-nowrap overflow-auto bg-gray-100">
             <SideBar/>
         </div>
     {:else}

@@ -4,7 +4,6 @@ module.exports = {
     plugins: [
         require('flowbite/plugin')
     ],
-    darkModeL: 'class',
     theme: {
         extend: {}
     }

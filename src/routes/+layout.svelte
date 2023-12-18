@@ -24,7 +24,7 @@
         <Navbar rounded color="form">
             <NavBrand href="/?">
                 <img src="/logo.svg" class="me-3 h-5 sm:h-5" alt="LogGit Logo"/>
-                <span class="self-center whitespace-nowrap text-xl font-semibold dark:text-white">LogGit</span>
+                <span class="self-center whitespace-nowrap text-xl font-semibold">LogGit</span>
             </NavBrand>
             <div class="md:w-1/3 w-9/12 invisible">
                 <RepoInput/>

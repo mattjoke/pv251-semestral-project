@@ -1,10 +1,11 @@
 <script>
-    import {chartStore, dataStore, selectedCommitsStore} from "$lib/stores/stores.js";
+    import {chartStore, dataStore, filterStore, selectedCommitsStore} from "$lib/stores/stores.js";
     import {GraphStyle} from "$lib/objects/GraphStyle";
-    import {getDefaultChartOption, prettierEnum} from "$lib/utils.js";
+    import {getDefaultChartOption, hexToRgba, prettierEnum} from "$lib/utils.js";
     import GraphDepth from "$lib/components/GraphDepth.svelte";
     import prettyBytes from "pretty-bytes";
     import CommitChooser from "$lib/components/CommitChooser.svelte";
+    import FilterTab from "$lib/components/FilterTab.svelte";
 
     let chartInstance = null;
     chartStore.subscribe((value) => {
@@ -36,6 +37,11 @@
         selectedCommits = value;
     });
 
+    let selectedFilters;
+    filterStore.subscribe((value) => {
+        selectedFilters = value;
+    });
+
     $: pickedCommits = allCommits.slice(selectedCommits[0], selectedCommits[1]);
     $: timelineCommits = pickedCommits.map((item) => {
         return {
@@ -48,6 +54,124 @@
         }
     });
 
+    const applyFilters = (tree, filters) => {
+        if (filters.length === 0) {
+            return tree;
+        }
+        // Crawl through the tree structure and check if the filter matches
+        const crawl = (tree, filters) => {
+            if (tree.children == null) {
+                return tree;
+            }
+            let newChildren = [];
+            // Filter change only border of items in the tree
+            tree.children.forEach((child) => {
+                const filterDirectory = filters.find((filter) => {
+                    return filter.name === "directory";
+                });
+                const isDirectory = child.children != null;
+                if (isDirectory) {
+                    const crawlDirectory = crawl(child, filters);
+                    const directory = {
+                        name: crawlDirectory.name,
+                        path: crawlDirectory.path,
+                        children: crawlDirectory.children,
+                        itemStyle: {
+                            color: filterDirectory ? hexToRgba("#FACA15", 1) : hexToRgba("#FACA15", 0.2),
+                            borderWidth: filterDirectory ? 1 : 0,
+                            borderColor: "black"
+                        }
+                    }
+                    newChildren.push(directory);
+                    return;
+                }
+
+                const contains = filters.some((filter) => {
+                    if (filter.name === "file") {
+                        return true
+                    }
+                    return child.name.includes(filter.name);
+                });
+                if (contains) {
+                    newChildren.push({
+                        name: child.name,
+                        path: child.path,
+                        value: child.value,
+                        itemStyle: {
+                            color: child.itemStyle.color,
+                            borderWidth: 5,
+                            borderColor: hexToRgba(child.itemStyle.color, 0.8)
+                        }
+                    });
+                } else {
+                    newChildren.push({
+                        name: child.name,
+                        path: child.path,
+                        value: child.value,
+                        itemStyle: {
+                            color: hexToRgba(child.itemStyle.color, 0.2),
+                            borderWidth: 0,
+                            borderColor: child.itemStyle.color
+                        }
+                    });
+                }
+            });
+
+            const filterD = filters.find((filter) => {
+                return filter.name === "directory";
+            });
+            return {
+                name: tree.name,
+                path: tree.path,
+                itemStyle: {
+                    color: filterD ? hexToRgba("#FACA15", 1) : hexToRgba("#FACA15", 0.2),
+                    borderWidth: filterD ? 1 : 0,
+                    borderColor: "black"
+                },
+                children: newChildren
+            }
+        }
+        return crawl(tree, filters);
+    }
+
+    const applyFiltersGraph = (graph, filters) => {
+        if (filters.length === 0) {
+            return graph;
+        }
+
+        let newNodes = [];
+        for (let node in graph.nodes) {
+            const newNode = graph.nodes[node]
+            const contains = filters.some((filter) => {
+                return newNode.name.includes(filter.name);
+            });
+
+            if (contains) {
+                newNodes.push({
+                    ...newNode,
+                    itemStyle: {
+                        color: newNode.itemStyle.color,
+                        borderWidth: 5,
+                        borderColor: hexToRgba(newNode.itemStyle.color, 0.8)
+                    }
+                });
+            } else {
+                newNodes.push({
+                    ...newNode,
+                    itemStyle: {
+                        color: hexToRgba(newNode.itemStyle.color, 0.2),
+                        borderWidth: 0,
+                        borderColor: newNode.itemStyle.color
+                    }
+                });
+            }
+        }
+        return {
+            nodes: newNodes,
+            links: graph.links
+        }
+    }
+
     const updateGraphOptions = (insideValue) => {
         let newOption = {};
         let data = [];
@@ -56,7 +180,7 @@
             case 'TREE':
                 graphDepthActive = true;
                 currentGraphType = GraphStyle.TREE;
-                data = commitInstance.data.tree ?? [];
+                data = applyFilters(commitInstance.data.tree ?? [], selectedFilters);
                 newOption = {
                     series: getDefaultChartOption({
                         initialTreeDepth: inputCounter,
@@ -319,14 +443,17 @@
                 },
                 options: computedCommitFS.map((key) => {
                     let d = commitFS[key].data.tree;
+                    d = applyFilters(d, selectedFilters)
 
                     let newData = [];
                     let newLinks = [];
                     if (currentGraphType === GraphStyle.TREE_MAP) {
                         d = commitFS[key].data.treeMap;
+                        d = applyFilters(d, selectedFilters)
                         newData = [d];
                     } else if (currentGraphType === GraphStyle.DAG || currentGraphType === GraphStyle.FORCE_DIRECTED || currentGraphType === GraphStyle.CIRCULAR_GRAPH) {
                         d = commitFS[key].data.dag;
+                        d = applyFiltersGraph(d, selectedFilters)
                         newData = d.nodes;
                         newLinks = [...d.links];
                     } else {
@@ -382,7 +509,7 @@
 </script>
 
 
-<div class="mb-5">
+<div class="overflow-y-auto">
     <h1 class="text-2xl">
         View options
     </h1>
@@ -397,4 +524,5 @@
         {/each}
     </div>
     <GraphDepth bind:depth={graphDepthActive} bind:counter={inputCounter}/>
+    <FilterTab/>
 </div>
